@@ -4,6 +4,6 @@
 #
 
 PROJECT_NAME := lorawan_esp32_gw
-
+#IDF_PATH=/mnt/hgfs/app/julia/rust-esp32-std-demo/.embuild/espressif/esp-idf-master
 include $(IDF_PATH)/make/project.mk
 
