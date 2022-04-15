@@ -1,0 +1,9 @@
+/CMakeCache.txt
+/CMakeFiles
+/config
+/bootloader
+/bootloader-prefix
+/kconfigs.in
+/kconfigs_projbuild.in
+/config.env
+/build/esp32-main-qemu.bin
