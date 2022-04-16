@@ -23,6 +23,7 @@ COMMENTS : This program is designed for execution on ESP32 Module (Dev.C kit).
 #include <Common.h>
 #include <ServerManagerItf.h>
 
+#include "esp_chip_info.h"
 
 /*********************************************************************************************
   Include for module implementation

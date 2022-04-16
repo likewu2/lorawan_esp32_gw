@@ -124,4 +124,8 @@ COMMENTS: The version string MUST be updated during the build process of a new r
 
 
 
+#define portTICK_RATE_MS              portTICK_PERIOD_MS
+
+
+
 #endif

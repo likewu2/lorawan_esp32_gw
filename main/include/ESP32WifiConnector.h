@@ -34,7 +34,7 @@
   Includes
 *********************************************************************************************/
 
-#include "esp_event_loop.h"
+#include "esp_event.h"
 #include "esp_wifi.h"
 #include "nvs_flash.h"
 #include "esp_system.h"
@@ -44,13 +44,22 @@
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 
-#include "apps/sntp/sntp.h"
-
+#include "lwip/apps/sntp.h"
+#include "hal/gpio_types.h"
 //#include <sys/socket.h>
-
 
 #include "Utilities.h"
 
+#include "esp_netif.h"
+#include "esp_mac.h"
+
+ESP_EVENT_DECLARE_BASE(TASK_EVENTS);         // declaration of the task events family
+
+enum {
+    TASK_ITERATION_EVENT                     // raised during an iteration of the loop within the task
+};
+
+typedef void* system_event_t;
 
 /********************************************************************************************* 
   Definitions for debug traces
@@ -266,7 +275,7 @@ CESP32WifiConnector * CESP32WifiConnector_New();
 void CESP32WifiConnector_Delete(CESP32WifiConnector *this);
 
 // Wifi event handler
-static esp_err_t CESP32WifiConnector_WifiEventHandler(void *pCtx, system_event_t *pEvent);
+static void CESP32WifiConnector_WifiEventHandler(void* this, esp_event_base_t base, int32_t event_id, void* event_data);
 
 // Low level Wifi
 #define WIFI_EVENT_GROUP_CONNECTED_BIT     BIT0

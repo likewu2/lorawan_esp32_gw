@@ -48,7 +48,7 @@
 
 // Object's definitions and methods
 #include "ESP32WifiConnector.h"
-         
+
     
 /*********************************************************************************************
   Instantiate global static objects used by module implementation
@@ -65,6 +65,11 @@ CServerConnectorItfImplOb g_ServerConnectorItfImplOb = { .m_pAddRef = CESP32Wifi
                                                          .m_pDownlinkReceived = CESP32WifiConnector_DownlinkReceived
                                                        };
 
+
+esp_event_loop_handle_t loop_without_task;
+
+/* Event source task related definitions */
+ESP_EVENT_DEFINE_BASE(TASK_EVENTS);
 
 /********************************************************************************************* 
 
@@ -970,12 +975,19 @@ bool CESP32WifiConnector_ProcessInitialize(CESP32WifiConnector *this, CESP32Wifi
   // Gateway MAC Address is explicitly set (i.e. checked in UDP packet by Network Server) 
   esp_base_mac_addr_set(pParams->m_pConnectorSettings->m_GatewayMACAddr);
 
-  tcpip_adapter_init();
+  esp_netif_init();
 
   wifi_init_config_t InitConfig = WIFI_INIT_CONFIG_DEFAULT();
   bool bError = false;
 
-  if (esp_event_loop_init(CESP32WifiConnector_WifiEventHandler, this) != ESP_OK) { bError = true; }
+  esp_event_loop_args_t loop_without_task_args = {
+      .queue_size = 5,
+      .task_name = NULL // no task will be created
+  };
+  if (esp_event_loop_create(&loop_without_task_args, &loop_without_task) != ESP_OK) { 
+    ESP_ERROR_CHECK(esp_event_handler_instance_register_with(loop_without_task, TASK_EVENTS, TASK_ITERATION_EVENT, CESP32WifiConnector_WifiEventHandler, this, NULL));
+    bError = true; 
+  }
   else if (esp_wifi_init(&InitConfig) != ESP_OK) { bError = true; }
   else if (esp_wifi_set_storage(WIFI_STORAGE_RAM) != ESP_OK) { bError = true; }
   else if (esp_wifi_set_mode(WIFI_MODE_STA) != ESP_OK) { bError = true; }
@@ -1477,11 +1489,11 @@ bool CESP32WifiConnector_ProcessDownlinkReceived(CESP32WifiConnector *this, CESP
   Event handler for ESP Wifi (static method)
 *********************************************************************************************/
 
-static esp_err_t CESP32WifiConnector_WifiEventHandler(void *this, system_event_t *pEvent)
+static void CESP32WifiConnector_WifiEventHandler(void* this, esp_event_base_t base, int32_t event_id, void* event_data)
 {
-  switch(pEvent->event_id)
+  switch(event_id)
   {
-    case SYSTEM_EVENT_STA_GOT_IP:
+    case IP_EVENT_STA_GOT_IP:
       #if (ESP32WIFICONNECTOR_DEBUG_LEVEL0)
         DEBUG_PRINT_LN("[INFO] 'CESP32WifiConnector_WifiEventHandler' - Event: SYSTEM_EVENT_STA_GOT_IP");
       #endif
@@ -1490,7 +1502,7 @@ static esp_err_t CESP32WifiConnector_WifiEventHandler(void *this, system_event_t
       xEventGroupSetBits(((CESP32WifiConnector *) this)->m_hWifiEventGroup, WIFI_EVENT_GROUP_CONNECTED_BIT);
       break;
 
-    case SYSTEM_EVENT_STA_DISCONNECTED:
+    case WIFI_EVENT_STA_DISCONNECTED:
       #if (ESP32WIFICONNECTOR_DEBUG_LEVEL0)
         DEBUG_PRINT_LN("[INFO] 'CESP32WifiConnector_WifiEventHandler' - Event: SYSTEM_EVENT_STA_DISCONNECTED");
       #endif
@@ -1499,18 +1511,18 @@ static esp_err_t CESP32WifiConnector_WifiEventHandler(void *this, system_event_t
       xEventGroupSetBits(((CESP32WifiConnector *) this)->m_hWifiEventGroup, WIFI_EVENT_GROUP_DISCONNECTED_BIT);
       break;
 
-    case SYSTEM_EVENT_STA_CONNECTED:
-    case SYSTEM_EVENT_STA_LOST_IP:
-    case SYSTEM_EVENT_STA_START:
-    case SYSTEM_EVENT_STA_STOP:
-    case SYSTEM_EVENT_STA_WPS_ER_FAILED:
-    case SYSTEM_EVENT_STA_WPS_ER_PIN:
-    case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
-    case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
-    case SYSTEM_EVENT_WIFI_READY:
+    case WIFI_EVENT_STA_CONNECTED:
+    case IP_EVENT_STA_LOST_IP:
+    case WIFI_EVENT_STA_START:
+    case WIFI_EVENT_STA_STOP:
+    case WIFI_EVENT_STA_WPS_ER_FAILED:
+    case WIFI_EVENT_STA_WPS_ER_PIN:
+    case WIFI_EVENT_STA_WPS_ER_SUCCESS:
+    case WIFI_EVENT_STA_WPS_ER_TIMEOUT:
+    //case WIFI_EVENT_WIFI_READY:
       #if (ESP32WIFICONNECTOR_DEBUG_LEVEL0)
         DEBUG_PRINT("[INFO] 'CESP32WifiConnector_WifiEventHandler' - Event received: ");
-        DEBUG_PRINT_DEC(pEvent->event_id);
+        DEBUG_PRINT_DEC(event_id);
         DEBUG_PRINT_CR;
       #endif
       break;

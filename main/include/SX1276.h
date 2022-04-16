@@ -21,6 +21,9 @@ COMMENTS: This program is designed for execution on ESP32 Module (Dev.C kit).
 
 #include "driver/spi_master.h"
 
+#include "esp_intr_alloc.h"
+
+#include "driver/gpio.h"
 
 /********************************************************************************************* 
   Definitions for debug traces

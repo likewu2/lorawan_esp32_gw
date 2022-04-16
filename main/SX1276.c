@@ -4541,7 +4541,7 @@ uint8_t CSX1276_getPacket(CSX1276 *this)
       sprintf((char *) this->m_ReceivedPacketInfo.m_szSNR, "%.1lf", (double) this->m_nSNRPacket);
 
       //  RSSI in dBm (signed integer, 1 dB precision)
-      sprintf((char *) this->m_ReceivedPacketInfo.m_szRSSI, "%d", (int) this->m_nRSSIPacket);
+      sprintf((char *) this->m_ReceivedPacketInfo.m_szRSSI, "%d", (unsigned char) this->m_nRSSIPacket);
        
       // UTC timestamp
       gettimeofday(&tmNow, NULL); 

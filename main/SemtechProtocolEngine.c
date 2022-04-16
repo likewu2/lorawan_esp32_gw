@@ -204,7 +204,7 @@ bool CSemtechProtocolEngine_BuildUplinkMessage(void *this,
   CMemoryBlockArrayEntryOb MemBlockArrayEntry;
   CSemtechMessageTransaction pMessageTransaction;
   BYTE *pStreamHead;
-  BYTE pTempBuffer[40];
+  BYTE pTempBuffer[60];
   WORD wLength;
   struct tm *tmTime;
   CLoraTransceiverItf_ReceivedLoraPacketInfo pPacketInfo;
@@ -394,8 +394,8 @@ bool CSemtechProtocolEngine_BuildUplinkMessage(void *this,
     // Split the UNIX timestamp to its calendar components
     time_t timePacket = pPacketInfo->m_dwUTCSec;
     tmTime = gmtime(&timePacket);
-    sprintf((char*) pTempBuffer, ",\"time\":\"%04i-%02i-%02iT%02i:%02i:%02i.%06liZ\"", (tmTime->tm_year) + 1900,
-            (tmTime->tm_mon) + 1, tmTime->tm_mday, tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, 
+    sprintf((char*) pTempBuffer, ",\"time\":\"%04i-%02i-%02iT%02i:%02i:%02i.%06liZ\"", (unsigned int) ((tmTime->tm_year) + 1900),
+            (unsigned short) ((tmTime->tm_mon) + 1), (unsigned char) tmTime->tm_mday, (unsigned char) tmTime->tm_hour, (unsigned char) tmTime->tm_min, (unsigned char) tmTime->tm_sec, 
             (long int) pPacketInfo->m_dwUTCMicroSec);
     memcpy(pStreamHead, pTempBuffer, wLength = strlen((char*) pTempBuffer));
     pStreamHead += wLength;
