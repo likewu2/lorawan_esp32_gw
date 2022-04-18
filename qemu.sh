@@ -12,4 +12,6 @@ TARGET=xtensa-esp32-espidf # Don't change this. Only the ESP32 chip is supported
 #esptool.py --chip esp32 image_info build/lorawan_esp32_gw.bin
 esptool.py --chip esp32 merge_bin --output build/esp32-main-qemu.bin --fill-flash-size 4MB 0x1000 build/bootloader/bootloader.bin  0x8000 build/partition_table/partition-table.bin  0x10000 build/lorawan_esp32_gw.bin --flash_mode dio --flash_freq 40m --flash_size 4MB
 $ESP_QEMU_PATH/qemu-system-xtensa -nographic -machine esp32 -nic user,model=open_eth,id=lo0,hostfwd=tcp:127.0.0.1:7888-:80 -drive file=build/esp32-main-qemu.bin,if=mtd,format=raw
-#
+
+#cargo espflash --monitor /dev/ttyUSB0 build/esp32-main-qemu.bin
+#cargo espflash --monitor com1 build/esp32-main-qemu.bin
