@@ -1,0 +1,4 @@
+Cannot generate into E:\app\julia\lorawan_esp32_gw
+It is already used for project \mnt\hgfs\app\julia\lorawan_esp32_gw
+
+Please either delete it manually or select another generation directory

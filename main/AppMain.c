@@ -20,10 +20,10 @@ COMMENTS : This program is designed for execution on ESP32 Module (Dev.C kit).
   Espressif framework includes
 *********************************************************************************************/
 
-#include <Common.h>
-#include <ServerManagerItf.h>
+#include "Common.h"
+#include "ServerManagerItf.h"
 
-#include "esp_chip_info.h"
+#include <esp_chip_info.h>
 
 /*********************************************************************************************
   Include for module implementation
