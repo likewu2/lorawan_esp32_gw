@@ -54,6 +54,7 @@ COMMENTS : This program is designed for execution on ESP32 Module (Dev.C kit).
   Implementation 
 *******************************************************************************/
 
+static const char *TAG = "qemu-esp32";
 
 // Debug : global variables
 
@@ -92,7 +93,7 @@ static void initialize_wifi(void)
     esp_netif_set_ip4_addr(&ip_info.gw, 172, 17 , 0, 1);
     esp_netif_set_ip4_addr(&ip_info.netmask, 255, 255 , 255, 0);
 
-    //ESP_LOGI(TAG, "- IPv4 address: " IPSTR, IP2STR(&ip_info.ip));
+    ESP_LOGI(TAG, "- IPv4 address: " IPSTR, IP2STR(&ip_info.ip));
 
     esp_wifi_connect();
 }

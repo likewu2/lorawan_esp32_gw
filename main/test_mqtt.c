@@ -7,6 +7,11 @@
 
 #include <string.h>
 
+#include "esp_err.h"
+#include "esp_log.h"
+
+static const char *TAG = "qemu-test_mqtt";
+
 const ip_addr_t test_mqtt_local_ip = IPADDR4_INIT_BYTES(192, 168, 220, 1);
 const ip_addr_t test_mqtt_remote_ip = IPADDR4_INIT_BYTES(192, 168, 220, 1);
 const ip_addr_t test_mqtt_netmask = IPADDR4_INIT_BYTES(255, 255, 255, 0);
@@ -89,12 +94,15 @@ void START_TEST(void)
 
   client = mqtt_client_new();
   //fail_unless(client != NULL);
+  ESP_LOGI(TAG, "- mqtt_client_new client: %p", client);
   err = mqtt_client_connect(client, &test_mqtt_remote_ip, 1883, test_mqtt_connection_cb, NULL, &client_info);
   //fail_unless(err == ERR_OK);
+  ESP_LOGI(TAG, "- mqtt_client_connect err: %d", err);
 
   client->conn->connected(client->conn->callback_arg, client->conn, ERR_OK);
   p = pbuf_alloc(PBUF_RAW, sizeof(rxbuf), PBUF_REF);
   //fail_unless(p != NULL);
+  ESP_LOGI(TAG, "- pbuf_alloc p: %d", p);
   p->payload = rxbuf;
   /* since we hack the rx path, we have to hack the rx window, too: */
   client->conn->rcv_wnd -= p->tot_len;
