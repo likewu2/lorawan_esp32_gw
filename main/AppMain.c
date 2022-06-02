@@ -141,18 +141,6 @@ void test_task(void *pvParameter)
   printf("Return from IServerManager_Start\n");
 */
 
-  printf("\ninitializing wifi\n");
-  uint8_t mac_addr[8] = {0x02, 0x00, 0x00, 0xBE, 0xEE, 0xEF};
-  esp_base_mac_addr_set(mac_addr);
-
-  initialize_nvs();
-
-  initialize_wifi();
-
-  printf("\nSTART TEST mqtt\n");
-  START_TEST();
-
-
   /*while(1) 
   {
     // Wait for notification from LoraNodeManager (packet received)
@@ -245,14 +233,12 @@ void test_task(void *pvParameter)
 //CSX1276_availableData2(pSX1276, 180000);
 
 CSX1276_receiveAll2(pSX1276, 180000);
-
+*/
   while(1) 
   {
     // Idle loop = debug tests called before entering task main loop
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
- 
-*/
    
 }
 
@@ -423,6 +409,17 @@ void app_main()
   ILoraTransceiver_SetPowerMode(g_pLoraTransceiverItf, &SetPowerModeParams);
 
 */
+
+  printf("\ninitializing wifi\n");
+  uint8_t mac_addr[8] = {0x02, 0x00, 0x00, 0xBE, 0xEE, 0xEF};
+  esp_base_mac_addr_set(mac_addr);
+
+  initialize_nvs();
+
+  initialize_wifi();
+
+  printf("\nSTART TEST mqtt\n");
+  START_TEST();
 
   // Start task to process events
   xTaskCreate(&test_task, "test_task", 3072, NULL, 5, &g_PacketForwarderTask);
