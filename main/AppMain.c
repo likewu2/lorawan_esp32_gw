@@ -143,10 +143,10 @@ void test_task(void *pvParameter)
   printf("Return from IServerManager_Start\n");
 
   /* Initialize the LwIP stack */
-  lwip_init();
+  //lwip_init();
 
   /* Configure the Network interface */
-  Netif_Config();
+  //Netif_Config();
 
   START_TEST();
 

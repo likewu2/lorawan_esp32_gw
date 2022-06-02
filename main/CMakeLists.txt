@@ -15,7 +15,9 @@ set(COMPONENT_SRCS "AppMain.c"
                             "SX1276.c"
                             "TransceiverManagerItf.c"
                             "Utilities.c"
-                            "test_mqtt.c")
+                            "test_mqtt.c"
+                            #"lwip/src/apps/mqtt/mqtt.c"
+                            )
 set(COMPONENT_ADD_INCLUDEDIRS "include")
 
 register_component()
