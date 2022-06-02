@@ -36,11 +36,12 @@ COMMENTS : This program is designed for execution on ESP32 Module (Dev.C kit).
 #include "LoraNodeManagerItf.h"
 #include "LoraServerManagerItf.h"
 
-#include "lwip/init.h"
-#include "lwip/netif.h"
-#include "lwip/timeouts.h"
-#include "netif/etharp.h"
-//#include "ethernetif.h"
+#include "esp_err.h"
+#include "esp_log.h"
+
+#include "nvs_flash.h"
+#include "esp_wifi.h"
+#include "esp_mac.h"
 
 #include "test_mqtt.h"
 
@@ -65,47 +66,43 @@ TaskHandle_t g_PacketForwarderTask = NULL;
 //QueueHandle_t g_hEventQueue = NULL;
 //CLoraTransceiverItf_EventOb g_Event;
 
-
-/**
-  * @brief  Configures the network interface
-  * @param  None
-  * @retval None
-  */
-static void Netif_Config(void)
+static void initialize_nvs(void)
 {
-/*  ip_addr_t ipaddr;
-  ip_addr_t netmask;
-  ip_addr_t gw;
-
-#if LWIP_DHCP
-  ip_addr_set_zero_ip4(&ipaddr);
-  ip_addr_set_zero_ip4(&netmask);
-  ip_addr_set_zero_ip4(&gw);
-#else
-
-  IP4_ADDR(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
-  IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
-  IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
-
-#endif
-
-  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
-
-  netif_set_default(&gnetif);
-
-  ethernet_link_status_updated(&gnetif);
-
-#if LWIP_NETIF_LINK_CALLBACK
-  netif_set_link_callback(&gnetif, ethernet_link_status_updated);
-#endif*/
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(err);
 }
 
+esp_netif_ip_info_t ip_info;
+/* Initialize wifi with tcp/ip adapter */
+static void initialize_wifi(void)
+{
+
+    ESP_ERROR_CHECK(esp_netif_init());
+
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+
+    esp_netif_set_ip4_addr(&ip_info.ip, 172, 17 , 0, 2);
+    esp_netif_set_ip4_addr(&ip_info.gw, 172, 17 , 0, 1);
+    esp_netif_set_ip4_addr(&ip_info.netmask, 255, 255 , 255, 0);
+
+    //ESP_LOGI(TAG, "- IPv4 address: " IPSTR, IP2STR(&ip_info.ip));
+
+    esp_wifi_connect();
+}
+const int CONNECTED_BIT = BIT0;
 
 // Test task for LoraNodeManager interface debug
 // This task simulates the PacketForwarder task receiving uplink packets
 void test_task(void *pvParameter)
 {
-  CServerManagerItf_LoraSessionPacket pLoraSessionPacket;
+/*  CServerManagerItf_LoraSessionPacket pLoraSessionPacket;
   CTransceiverManagerItf_SessionEventOb SessionEvent;
 
 
@@ -141,13 +138,17 @@ void test_task(void *pvParameter)
   IServerManager_Start(g_pServerManagerItf, &ServerStartParams);
 
   printf("Return from IServerManager_Start\n");
+*/
 
-  /* Initialize the LwIP stack */
-  //lwip_init();
+  printf("\ninitializing wifi\n");
+  uint8_t mac_addr[8] = {0x02, 0x00, 0x00, 0xBE, 0xEE, 0xEF};
+  esp_base_mac_addr_set(mac_addr);
 
-  /* Configure the Network interface */
-  //Netif_Config();
+  initialize_nvs();
 
+  initialize_wifi();
+
+  printf("\nSTART TEST mqtt\n");
   START_TEST();
 
 
@@ -293,7 +294,7 @@ void app_main()
 
   // Create the LoraNodeManager
 
-  printf("Calling CLoraNodeManager_CreateInstance\n");
+/*  printf("Calling CLoraNodeManager_CreateInstance\n");
 
   g_pTransceiverManagerItf = CLoraNodeManager_CreateInstance(1);
 
@@ -343,7 +344,7 @@ void app_main()
   IServerManager_Initialize(g_pServerManagerItf, &InitializeServerParams);
 
   printf("Return from IServerManager_Initialize\n");
-
+*/
 
 
 //// Attach the PacketForwarder
