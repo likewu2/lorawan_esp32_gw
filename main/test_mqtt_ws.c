@@ -27,8 +27,8 @@
 
 static const char *TAG = "qemu-test_mqtt";
 
-const ip_addr_t test_mqtt_local_ip = IPADDR4_INIT_BYTES(192, 168, 220, 1);
-const ip_addr_t test_mqtt_remote_ip = IPADDR4_INIT_BYTES(192, 168, 220, 1);
+const ip_addr_t test_mqtt_local_ip = IPADDR4_INIT_BYTES(172, 17, 0, 1);
+const ip_addr_t test_mqtt_remote_ip = IPADDR4_INIT_BYTES(172, 17, 0, 1);
 const ip_addr_t test_mqtt_netmask = IPADDR4_INIT_BYTES(255, 255, 255, 0);
 
 static err_t test_mqtt_netif_output(struct netif *netif, struct pbuf *p,
