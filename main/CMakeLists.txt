@@ -1,4 +1,7 @@
-idf_component_register(SRCS "AppMain.c"
+set(COMPONENT_REQUIRES )
+set(COMPONENT_PRIV_REQUIRES )
+
+set(COMPONENT_SRCS "AppMain.c"
                             "ESP32WifiConnector.c"
                             "LoraNodeManager.c"
                             "LoraRealtimeSender.c"
@@ -12,5 +15,7 @@ idf_component_register(SRCS "AppMain.c"
                             "SX1276.c"
                             "TransceiverManagerItf.c"
                             "Utilities.c"
-                            "test_mqtt.c"
-                    INCLUDE_DIRS "include")
+                            "test_mqtt.c")
+set(COMPONENT_ADD_INCLUDEDIRS "include")
+
+register_component()
