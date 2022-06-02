@@ -12,4 +12,5 @@ idf_component_register(SRCS "AppMain.c"
                             "SX1276.c"
                             "TransceiverManagerItf.c"
                             "Utilities.c"
+                            "test_mqtt.c"
                     INCLUDE_DIRS "include")

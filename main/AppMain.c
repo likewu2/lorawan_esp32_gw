@@ -35,6 +35,8 @@ COMMENTS : This program is designed for execution on ESP32 Module (Dev.C kit).
 #include "LoraNodeManagerItf.h"
 #include "LoraServerManagerItf.h"
 
+#include "test_mqtt.h"
+
 /****************************************************************************** 
   Forward declaration
 *******************************************************************************/
@@ -101,21 +103,17 @@ void test_task(void *pvParameter)
   printf("Return from IServerManager_Start\n");
 
 
-  while(1) 
+  START_TEST();
+
+
+  /*while(1) 
   {
     // Wait for notification from LoraNodeManager (packet received)
     if (xTaskNotifyWait(0, 0xFFFFFFFF, &pLoraSessionPacket, pdMS_TO_TICKS(100)) == pdTRUE)
     {
       printf("Test Task : Packet received\n");
-
-      // Notify LoraNodeManager that packet is forwarded
-//    SessionEvent.m_wEventType = TRANSCEIVERMANAGER_SESSIONEVENT_UPLINK_SENT;
-//    SessionEvent.m_pSession = pLoraSessionPacket->m_pSession;
-//    SessionEvent.m_dwSessionId = pLoraSessionPacket->m_dwSessionId;
-//    ITransceiverManager_SessionEvent(g_pTransceiverManagerItf, &SessionEvent);
-
     }
-  }
+  }*/
   
 
 /*
