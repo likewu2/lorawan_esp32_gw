@@ -23,7 +23,8 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
-#define CONFIG_BROKER_URI "mqtt://192.168.220.1:1883"
+//#define CONFIG_BROKER_URI "ws://192.168.137.1:1883"
+#define CONFIG_BROKER_URI "mqtt://192.168.137.1:1883"
 
 static const char *TAG = "qemu-test_mqtt";
 
@@ -137,6 +138,31 @@ static void mqtt_app_start(void)
         .uri = CONFIG_BROKER_URI,
     };
 
+#if CONFIG_BROKER_URL_FROM_STDIN
+    char line[128];
+
+    if (strcmp(mqtt_cfg.uri, "FROM_STDIN") == 0) {
+        int count = 0;
+        printf("Please enter url of mqtt broker\n");
+        while (count < 128) {
+            int c = fgetc(stdin);
+            if (c == '\n') {
+                line[count] = '\0';
+                break;
+            } else if (c > 0 && c < 127) {
+                line[count] = c;
+                ++count;
+            }
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+        }
+        mqtt_cfg.uri = line;
+        printf("Broker url: %s\n", line);
+    } else {
+        ESP_LOGE(TAG, "Configuration mismatch: wrong broker url");
+        abort();
+    }
+#endif /* CONFIG_BROKER_URL_FROM_STDIN */
+
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
@@ -157,9 +183,9 @@ void START_TEST(void)
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    //ESP_ERROR_CHECK(nvs_flash_init());
+    //ESP_ERROR_CHECK(esp_netif_init());
+    //ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
      * Read "Establishing Wi-Fi or Ethernet Connection" section in

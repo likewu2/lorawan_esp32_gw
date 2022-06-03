@@ -11,11 +11,13 @@ TARGET=xtensa-esp32-espidf # Don't change this. Only the ESP32 chip is supported
 #esptool.py --chip esp32 elf2image build/main/main.out
 #esptool.py --chip esp32 image_info build/lorawan_esp32_gw.bin
 esptool.py --chip esp32 merge_bin --output build/esp32-main-qemu.bin --fill-flash-size 4MB 0x1000 build/bootloader/bootloader.bin  0x8000 build/partition_table/partition-table.bin  0x10000 build/lorawan_esp32_gw.bin --flash_mode dio --flash_freq 40m --flash_size 4MB
-$ESP_QEMU_PATH/qemu-system-xtensa -nographic -M esp32 -no-reboot -device virtio-net-device,netdev=n1 -netdev tap,id=n1,ifname=tap0,script=no,downscript=no -drive file=build/esp32-main-qemu.bin,if=mtd,format=raw
+$ESP_QEMU_PATH/qemu-system-xtensa -nographic -M esp32 -no-reboot -netdev tap,id=n1,ifname=tap0,script=no,downscript=no -drive file=build/esp32-main-qemu.bin,if=mtd,format=raw
 
-#cargo espflash --monitor /dev/ttyUSB0 build/esp32-main-qemu.bin
-#cargo espflash --monitor com1 build/esp32-main-qemu.bin
-
+#cargo espflash --monitor /dev/ttyUSB0 E:\app\julia\lorawan_esp32_gw\build2\lorawan_esp32_gw.bin
+#cargo espflash --monitor COM3 E:\app\julia\lorawan_esp32_gw\build2\lorawan_esp32_gw.bin
+#D:\tools\esptool-v3.3-win64\esptool --chip esp32 -p COM3 -b 115200 write_flash --flash_freq 40m --flash_mode dio 0x1000 E:\app\julia\lorawan_esp32_gw\build2\bootloader\bootloader.bin 0x8000 E:\app\julia\lorawan_esp32_gw\build2\partition_table\partition-table.bin 0x10000 E:\app\julia\lorawan_esp32_gw\build2\lorawan_esp32_gw.bin
+--flash_size 32m
+idf.py -p COM3 monitor
 
 esptool.py --chip esp32 merge_bin --output build/qemu-esp32-wifitest.bin --fill-flash-size 4MB 0x1000 build/bootloader/bootloader.bin  0x8000 build/partition_table/partition-table.bin  0x10000 build/emulation.bin --flash_mode dio --flash_freq 40m --flash_size 4MB
 $ESP_QEMU_PATH/qemu-system-xtensa -nographic -M esp32 -m 4 -no-reboot -nic user,model=open_eth,netdev=n1,hostfwd=tcp::8000-:80 -drive file=build/qemu-esp32-wifitest.bin,if=mtd,format=raw
