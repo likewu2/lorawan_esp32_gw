@@ -23,6 +23,30 @@ esptool.py --chip esp32 merge_bin --output build/qemu-esp32-wifitest.bin --fill-
 $ESP_QEMU_PATH/qemu-system-xtensa -nographic -M esp32 -m 4 -no-reboot -nic user,model=open_eth,netdev=n1,hostfwd=tcp::8000-:80 -drive file=build/qemu-esp32-wifitest.bin,if=mtd,format=raw
 
 
+qemu-system-arm -cpu arm1176 -m 256 -M versatilepb \
+  -kernel kernel-qemu-arm1176-versatilepb \
+  -hda rpi-wheezy-overlay \
+  -append "console=ttyAMA0 root=/dev/sda2 ro init=/sbin/init-overlay" \
+  -nographic \
+  -virtfs local,path=shareddir,security_model=none,mount_tag=shareddir \
+  -object can-bus,id=canbus0 \
+  -object can-host-socketcan,id=canhost0,if=can0,canbus=canbus0 \
+  -device kvaser_pci,canbus=canbus0,host=can0 \
+guest machine:
+ip link set can0 type can bitrate 1000000
+ip link set can0 up
+cansend can0 1807EC0B#1122334455667788
+cansend can0 5A1#11.22.33.44.55.66.77.88
+host machine:
+ip link add dev can0 type vcan
+ip link set can0 up
+ifconfig
+candump can0
+host machine output:
+vcan0  1807EC0B  [08]  11 22 33 44 55 66 77 88
+vcan0       5A1  [08]  11 22 33 44 55 66 77 88
+
+
 leafcolor@ubuntu20vm:~/app$ $ESP_QEMU_PATH/qemu-system-xtensa -machine esp32 -device help
 Controller/Bridge/Hub devices:
 name "i82801b11-bridge", bus PCI
